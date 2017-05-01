@@ -1,18 +1,20 @@
-import random
-import sys
-import os
-import numpy as np
-from math import cos, sin
+# import random
+# import sys
+# import os
+# import numpy as np
+# from math import cos, sin
 import cv2
 import matplotlib.pyplot as plt
-from cv2.cv2 import HOGDescriptor
-from skimage.exposure import  exposure
-from skimage.io import imread, imshow
-from skimage.feature import hog
+from skimage.io import imshow
+# from cv2.cv2 import HOGDescriptor
+# from skimage.exposure import exposure
+
+# from skimage.io import imread
+# from skimage.feature import hog
 
 #help(cv2.HOGDescriptor())
 
-A = cv2.imread("dataset1/testes/train_5a_01000.png")
+A = cv2.imread("dataset/testes/train_5a_01000.png")
 # To open
 # imshow ( "dataset1/testes/train_5a_01000.png")
 # plt.show("dataset1/testes/train_5a_01000.png")
@@ -33,7 +35,7 @@ winSize = (128, 128) #tamanho da Imagem 128x128
 blockSize = (16, 16)
 blockStride = (8, 8)
 cellSize = (16, 16)
-nbins = 9 # números de angulos do esquadro
+nbins = 9 # numeros de angulos do esquadro
 derivAperture = 1
 winSigma = -1.
 histogramNormType = 0

@@ -4,9 +4,8 @@
 import matplotlib.pyplot as plt
 
 from skimage.feature import hog
-from skimage import data, color, exposure
-from skimage.io import imread, imshow
-import cv2
+from skimage import color, exposure
+from skimage.io import imread
 
 #to crop Image
 def crop():
@@ -68,7 +67,7 @@ def crop():
 
 #img.shape[0] # (128,128,3)
 
-sample = "dataset1/testes/train_53_01043.png"
+sample = "dataset/testes/train_53_01043.png"
 file_name = sample[16:-4]
 img = imread(sample)
 #cropped = crop()
