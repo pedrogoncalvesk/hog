@@ -13,27 +13,43 @@ from skimage import color, exposure
 from skimage.io import imread
 import time
 
-def loop(name, url, createHogImage):
-    print("::"+ name +" ::")
+
+url_dataset = "dataset/"
+url_test = "testes/"
+url_learning = "treinamento/"
+url_sample = "sample/"
+
+pixels_per_cel = 8
+cells_per_block = 2
+orientations = 9
+
+RUN = ",,"
+CREATE = False
+
+url_result = "build/PCP-" + repr(pixels_per_cel) + "-CPB-" + repr(cells_per_block) + "/"
+
+
+def loop(name, url, create_hog_image):
+    print("::" + name + " ::")
     print(time.ctime())
     for file_name in os.listdir(url):
-        if (file_name == ".DS_Store"):
-            continue;
+        if file_name == ".DS_Store":
+            continue
         print(file_name)
-        createImages(file_name, url, createHogImage)
+        create_image(file_name, url, create_hog_image)
     print(time.ctime())
 
 
-def createImages(file_name, urlFolder, createHogImage):
-    sample = urlFolder + file_name
-    file_name = sample[:-4]
-    img = imread(sample)
+def create_image(file_name, url_folder, create_hog_image):
+    file_tmp = url_folder + file_name
+    file_name = file_tmp[:-4]
+    img = imread(file_tmp)
     image = color.rgb2gray(img)
 
-    fd, hog_image = hog(image, orientations=9, pixels_per_cell=(pixels_per_cel, pixels_per_cel),
+    fd, hog_image = hog(image, orientations=orientations, pixels_per_cell=(pixels_per_cel, pixels_per_cel),
                         cells_per_block=(cells_per_block, cells_per_block), visualise=True, feature_vector=True)
 
-    if createHogImage:
+    if create_hog_image:
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=True)
 
         ax1.axis('off')
@@ -50,15 +66,15 @@ def createImages(file_name, urlFolder, createHogImage):
         ax1.set_adjustable('box-forced')
 
         if file_name.count("/") > 1:
-            fig.savefig(urlResultado + urlFolder + "comparable_" + file_name.replace("/", "_", 1))
+            fig.savefig(url_result + url_folder + "comparable_" + file_name.replace("/", "_", 1))
         else:
-            fig.savefig(urlResultado + urlFolder + "comparable_" + file_name)
+            fig.savefig(url_result + url_folder + "comparable_" + file_name)
 
     # save to file
     if file_name.count("/") > 1:
-        f = open(urlResultado + urlFolder + "HOG_" + file_name.replace("/", "_", 1) + ".txt", "w")
+        f = open(url_result + url_folder + "HOG_" + file_name.replace("/", "_", 1) + ".txt", "w")
     else:
-        f = open(urlResultado + urlFolder + "HOG_" + file_name + ".txt", "w")
+        f = open(url_result + url_folder + "HOG_" + file_name + ".txt", "w")
 
     for item in fd:
         f.write("%s\n" % item)
@@ -66,31 +82,19 @@ def createImages(file_name, urlFolder, createHogImage):
 
     plt.close('all')
 
-urlDataset = "dataset/"
-urlTeste = "testes/"
-urlTreinamento = "treinamento/"
-urlSample = "sample/"
+if not os.path.exists(url_result):
+    os.makedirs(url_result)
+    os.makedirs(url_result + url_dataset + url_test)
+    os.makedirs(url_result + url_dataset + url_test + "comparable_dataset_testes/")
+    os.makedirs(url_result + url_dataset + url_test + "HOG_dataset_testes/")
+    os.makedirs(url_result + url_dataset + url_learning)
+    os.makedirs(url_result + url_dataset + url_learning + "comparable_dataset_treinamento/")
+    os.makedirs(url_result + url_dataset + url_learning + "HOG_dataset_treinamento/")
+    os.makedirs(url_result + url_sample)
+    os.makedirs(url_result + url_sample + "comparable_sample/")
+    os.makedirs(url_result + url_sample + "HOG_sample/")
 
-pixels_per_cel = 8
-cells_per_block = 2
-
-urlResultado = "build/PCP-" + repr(pixels_per_cel) + "-CPB-" + repr(cells_per_block) + "/"
-
-if not os.path.exists(urlResultado):
-    os.makedirs(urlResultado)
-    os.makedirs(urlResultado + urlDataset + urlTeste)
-    os.makedirs(urlResultado + urlDataset + urlTeste + "comparable_dataset_testes/")
-    os.makedirs(urlResultado + urlDataset + urlTeste + "HOG_dataset_testes/")
-    os.makedirs(urlResultado + urlDataset + urlTreinamento)
-    os.makedirs(urlResultado + urlDataset + urlTreinamento + "comparable_dataset_treinamento/")
-    os.makedirs(urlResultado + urlDataset + urlTreinamento + "HOG_dataset_treinamento/")
-    os.makedirs(urlResultado + urlSample)
-    os.makedirs(urlResultado + urlSample + "comparable_sample/")
-    os.makedirs(urlResultado + urlSample + "HOG_sample/")
-
-RUN = ",,"
-CREATE = False
-RUNNED = False
+EXECUTED = False
 
 if "RUN" in os.environ:
     RUN = os.environ["RUN"]
@@ -103,18 +107,19 @@ if "CREATE" in os.environ:
 RUN = RUN.split(",")
 
 if "SAMPLE" in RUN:
-    loop("SAMPLE", urlSample, CREATE)
-    RUNNED = True
+    loop("SAMPLE", url_sample, CREATE)
+    EXECUTED = True
 
 if "TESTES" in RUN:
-    loop("TESTES", urlDataset + urlTeste, CREATE)
-    RUNNED = True
+    loop("TESTES", url_dataset + url_test, CREATE)
+    EXECUTED = True
 
 if "TREINAMENTO" in RUN:
-    loop("TREINAMENTO", urlDataset + urlTreinamento, CREATE)
-    RUNNED = True
+    loop("TREINAMENTO", url_dataset + url_learning, CREATE)
+    EXECUTED = True
 
-if RUNNED:
+if EXECUTED:
     print("All Files Created")
 else:
-    print("You must define the environment variables: RUN and CREATE(optional) \n\nE.g.:   RUN=SAMPLE,TESTES,TREINAMENTO\n        CREATE=true")
+    print("You must define the environment variables: RUN and CREATE(optional) ")
+    print("\n\nE.g.:   RUN=SAMPLE,TESTES,TREINAMENTO\n        CREATE=true")
