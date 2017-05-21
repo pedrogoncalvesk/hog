@@ -19,14 +19,23 @@ url_test = "testes/"
 url_learning = "treinamento/"
 url_sample = "sample/"
 
-pixels_per_cel = 8
-cells_per_block = 2
+pixels_per_celL = 8
+cells_per_block = 1
 orientations = 9
 
-RUN = ",,"
-CREATE = False
+if "PIXELS_PER_CELL" in os.environ:
+    pixels_per_celL = int(os.environ["PIXELS_PER_CELL"])
 
-url_result = "build/PCP-" + repr(pixels_per_cel) + "-CPB-" + repr(cells_per_block) + "/"
+if "CELLS_PER_BLOCK" in os.environ:
+    cells_per_block = int(os.environ["CELLS_PER_BLOCK"])
+
+if "ORIENTATIONS" in os.environ:
+    orientations = int(os.environ["ORIENTATIONS"])
+
+RUN = ",,"
+CREATE_IMAGE = False
+
+url_result = "build/PCP-" + repr(pixels_per_celL) + "-CPB-" + repr(cells_per_block) + "/"
 
 
 def loop(name, url, create_hog_image):
@@ -46,7 +55,7 @@ def create_image(file_name, url_folder, create_hog_image):
     img = imread(file_tmp)
     image = color.rgb2gray(img)
 
-    fd, hog_image = hog(image, orientations=orientations, pixels_per_cell=(pixels_per_cel, pixels_per_cel),
+    fd, hog_image = hog(image, orientations=orientations, pixels_per_cell=(pixels_per_celL, pixels_per_celL),
                         cells_per_block=(cells_per_block, cells_per_block), visualise=True, feature_vector=True)
 
     if create_hog_image:
@@ -70,14 +79,21 @@ def create_image(file_name, url_folder, create_hog_image):
         else:
             fig.savefig(url_result + url_folder + "comparable_" + file_name)
 
-    # save to file
+    # Start save to file
     if file_name.count("/") > 1:
         f = open(url_result + url_folder + "HOG_" + file_name.replace("/", "_", 1) + ".txt", "w")
     else:
         f = open(url_result + url_folder + "HOG_" + file_name + ".txt", "w")
 
+    # Save hog into file
+    count = 0
     for item in fd:
-        f.write("%s\n" % item)
+        if count == orientations - 1:
+            count = 0
+            f.write("%s\n" % item)
+        else:
+            count = count + 1
+            f.write("%s," % item)
     f.close()
 
     plt.close('all')
@@ -99,27 +115,27 @@ EXECUTED = False
 if "RUN" in os.environ:
     RUN = os.environ["RUN"]
 
-if "CREATE" in os.environ:
-    TMP_CREATE = os.environ["CREATE"]
+if "CREATE_IMAGE" in os.environ:
+    TMP_CREATE = os.environ["CREATE_IMAGE"]
     if TMP_CREATE == "true":
-        CREATE = True
+        CREATE_IMAGE = True
 
 RUN = RUN.split(",")
 
 if "SAMPLE" in RUN:
-    loop("SAMPLE", url_sample, CREATE)
+    loop("SAMPLE", url_sample, CREATE_IMAGE)
     EXECUTED = True
 
 if "TESTES" in RUN:
-    loop("TESTES", url_dataset + url_test, CREATE)
+    loop("TESTES", url_dataset + url_test, CREATE_IMAGE)
     EXECUTED = True
 
 if "TREINAMENTO" in RUN:
-    loop("TREINAMENTO", url_dataset + url_learning, CREATE)
+    loop("TREINAMENTO", url_dataset + url_learning, CREATE_IMAGE)
     EXECUTED = True
 
 if EXECUTED:
     print("All Files Created")
 else:
-    print("You must define the environment variables: RUN and CREATE(optional) ")
-    print("\n\nE.g.:   RUN=SAMPLE,TESTES,TREINAMENTO\n        CREATE=true")
+    print("You must define the environment variables: RUN and CREATE_IMAGE(optional) ")
+    print("\n\nE.g.:   RUN=SAMPLE,TESTES,TREINAMENTO\n        CREATE_IMAGE=true")
