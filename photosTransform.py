@@ -5,7 +5,7 @@
 # from math import cos, sin
 import cv2
 import matplotlib.pyplot as plt
-from skimage.io import imshow
+import skimage.io as imshow
 # from cv2.cv2 import HOGDescriptor
 # from skimage.exposure import exposure
 
