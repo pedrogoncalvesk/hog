@@ -88,8 +88,33 @@ if not os.path.exists(urlResultado):
     os.makedirs(urlResultado + urlSample + "comparable_sample/")
     os.makedirs(urlResultado + urlSample + "HOG_sample/")
 
-loop("SAMPLE", urlSample, True)
-loop("TESTES", urlDataset + urlTeste, False)
-loop("TREINAMENTO", urlDataset + urlTreinamento, False)
+RUN = ",,"
+CREATE = False
+RUNNED = False
 
-print("All Files Created");
+if "RUN" in os.environ:
+    RUN = os.environ["RUN"]
+
+if "CREATE" in os.environ:
+    TMP_CREATE = os.environ["CREATE"]
+    if TMP_CREATE == "true":
+        CREATE = True
+
+RUN = RUN.split(",")
+
+if "SAMPLE" in RUN:
+    loop("SAMPLE", urlSample, CREATE)
+    RUNNED = True
+
+if "TESTES" in RUN:
+    loop("TESTES", urlDataset + urlTeste, CREATE)
+    RUNNED = True
+
+if "TREINAMENTO" in RUN:
+    loop("TREINAMENTO", urlDataset + urlTreinamento, CREATE)
+    RUNNED = True
+
+if RUNNED:
+    print("All Files Created")
+else:
+    print("You must define the environment variables: RUN and CREATE(optional) \n\nE.g.:   RUN=SAMPLE,TESTES,TREINAMENTO\n        CREATE=true")
