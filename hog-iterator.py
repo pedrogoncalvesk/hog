@@ -112,24 +112,21 @@ if __name__ == '__main__':
 
     EXECUTED = False
 
-    path = ""
     timestamp_start = ""
     timestamp_finish = ""
 
     if RUN:
         if RUN == "TESTES":
-            path = url_test
-            timestamp_start, timestamp_finish = loop("TESTES", path, CREATE_IMAGE)
+            timestamp_start, timestamp_finish = loop("TESTES", url_test, CREATE_IMAGE)
             EXECUTED = True
         elif RUN == "TREINAMENTO":
-            path = url_learning
-            timestamp_start, timestamp_finish = loop("TREINAMENTO", path, CREATE_IMAGE)
+            timestamp_start, timestamp_finish = loop("TREINAMENTO", url_learning, CREATE_IMAGE)
             EXECUTED = True
 
     if EXECUTED:
         done = "All files created: START  " + timestamp_start + " FINISH " + timestamp_finish
         print(done)
-        f = open(url_result + path + "config.txt", "w")
+        f = open(url_result + "config.txt", "w")
         f.write("%s\n" % done)
         f.write("HOG_ORIENTATIONS : %s\n" % orientations)
         f.write("HOG_PIXELS_PER_CELL : %s\n" % pixels_per_celL)
