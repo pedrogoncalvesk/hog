@@ -86,14 +86,14 @@ def create_image(file_name, url_folder, create_hog_image):
         f = open(url_result + url_folder + "HOG_" + file_name + ".txt", "w")
 
     # Save hog into file
-    count = 0
+    # count = 0
     for item in fd:
-        if count == orientations - 1:
-            count = 0
-            f.write("%s\n" % item)
-        else:
-            count = count + 1
-            f.write("%s," % item)
+    #     if count == orientations - 1:
+    #         count = 0
+        f.write("%s\n" % item)
+        # else:
+        #     count = count + 1
+        #     f.write("%s," % item)
     f.close()
 
     plt.close('all')
