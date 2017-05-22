@@ -21,6 +21,7 @@ url_learning = "treinamento/"
 pixels_per_celL = 8
 cells_per_block = 1
 orientations = 9
+file_dimensions = [128, 128]
 
 RUN = ""
 CREATE_IMAGE = False
@@ -33,6 +34,10 @@ if "CELLS_PER_BLOCK" in os.environ:
 
 if "ORIENTATIONS" in os.environ:
     orientations = int(os.environ["ORIENTATIONS"])
+
+if "FILE_DIMENSIONS" in os.environ:
+    file_dimensions = os.environ["FILE_DIMENSIONS"]
+    file_dimensions = map(int, file_dimensions.split("x"))
 
 if "RUN" in os.environ:
     RUN = os.environ["RUN"]
@@ -47,13 +52,14 @@ url_result = "build/PCP-" + repr(pixels_per_celL) + "-CPB-" + repr(cells_per_blo
 
 def loop(name, url, create_hog_image):
     print("::" + name + " ::")
-    print(time.ctime())
+    timestamp_start = time.ctime()
     for file_name in os.listdir(url):
         if file_name == ".DS_Store":
             continue
         print(file_name)
         create_image(file_name, url, create_hog_image)
-    print(time.ctime())
+    timestamp_finish = time.ctime()
+    return timestamp_start, timestamp_finish
 
 
 def create_image(file_name, url_folder, create_hog_image):
@@ -96,7 +102,6 @@ def create_image(file_name, url_folder, create_hog_image):
 
     plt.close('all')
 
-
 if __name__ == '__main__':
 
     if not os.path.exists(url_result):
@@ -111,24 +116,32 @@ if __name__ == '__main__':
     EXECUTED = False
 
     path = ""
+    timestamp_start = ""
+    timestamp_finish = ""
 
     if RUN:
         if RUN == "TESTES":
             path = url_dataset + url_test
-            loop("TESTES", path, CREATE_IMAGE)
+            timestamp_start, timestamp_finish = loop("TESTES", path, CREATE_IMAGE)
             EXECUTED = True
         elif RUN == "TREINAMENTO":
             path = url_dataset + url_learning
-            loop("TREINAMENTO", path, CREATE_IMAGE)
+            timestamp_start, timestamp_finish = loop("TREINAMENTO", path, CREATE_IMAGE)
             EXECUTED = True
 
     if EXECUTED:
-        print("All Files Created")
+        done = "All files created: START  " + timestamp_start + " FINISH " + timestamp_finish
+        print(done)
         f = open(url_result + path + "config.txt", "w")
-        f.write("ORIENTATIONS=%s\n" % orientations)
-        f.write("PIXELS_PER_CELL=%s\n" % pixels_per_celL)
-        f.write("CELLS_PER_BLOCK=%s\n" % cells_per_block)
+        f.write("%s\n" % done)
+        f.write("HOG_ORIENTATIONS : %s\n" % orientations)
+        f.write("HOG_PIXELS_PER_CELL : %s\n" % pixels_per_celL)
+        f.write("HOG_CELLS_PER_BLOCK : %s\n" % cells_per_block)
+        f.write("MLP_X_LENGTH : %s\n" % str((file_dimensions[0] / pixels_per_celL) * orientations * (file_dimensions[0] / pixels_per_celL)))
+        f.close()
     else:
         print("You must define the environment variables: RUN, CREATE_IMAGE(optional), ")
         print("ORIENTATIONS(default=9), PIXELS_PER_CELL(default=8), CELLS_PER_BLOCK(default=1) ")
-        print("\n\nE.g.:   RUN=TESTES,TREINAMENTO\n        CREATE_IMAGE=true")
+        print("\n\nE.g.:   RUN=TESTES,TREINAMENTO"
+              "\n        CREATE_IMAGE=true"
+              "\n        fi=true")
