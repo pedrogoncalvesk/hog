@@ -53,7 +53,7 @@ url_result = "build/PCP-" + repr(pixels_per_celL) + "-CPB-" + repr(cells_per_blo
 def loop(name, url, create_hog_image):
     print("::" + name + " ::")
     timestamp_start = time.ctime()
-    for file_name in os.listdir(url):
+    for file_name in os.listdir(url_dataset + url):
         if file_name == ".DS_Store":
             continue
         print(file_name)
@@ -63,8 +63,8 @@ def loop(name, url, create_hog_image):
 
 
 def create_image(file_name, url_folder, create_hog_image):
-    file_tmp = url_folder + file_name
-    file_name = file_tmp[:-4]
+    file_tmp = url_dataset + url_folder + file_name
+    file_name = file_tmp[:-4].replace(url_dataset, "")
     img = imread(file_tmp)
     image = color.rgb2gray(img)
 
@@ -87,13 +87,10 @@ def create_image(file_name, url_folder, create_hog_image):
         ax2.set_title('Histogram of Oriented Gradients')
         ax1.set_adjustable('box-forced')
 
-        if file_name.count("/") > 1:
-            fig.savefig(url_result + url_folder + "comparable_" + file_name.replace("/", "_", 1))
-        else:
-            fig.savefig(url_result + url_folder + "comparable_" + file_name)
+        fig.savefig(url_result + url_folder + "comparable_" + file_name)
 
     # Start save to file
-    f = open(url_result + url_folder + "HOG_" + file_name.replace("/", "_", 1) + ".txt", "w")
+    f = open(url_result + url_folder + "HOG_" + file_name + ".txt", "w")
 
     # Save hog into file
     for item in fd:
@@ -106,12 +103,12 @@ if __name__ == '__main__':
 
     if not os.path.exists(url_result):
         os.makedirs(url_result)
-        os.makedirs(url_result + url_dataset + url_test)
-        os.makedirs(url_result + url_dataset + url_test + "comparable_dataset_testes/")
-        os.makedirs(url_result + url_dataset + url_test + "HOG_dataset_testes/")
-        os.makedirs(url_result + url_dataset + url_learning)
-        os.makedirs(url_result + url_dataset + url_learning + "comparable_dataset_treinamento/")
-        os.makedirs(url_result + url_dataset + url_learning + "HOG_dataset_treinamento/")
+        os.makedirs(url_result + url_test)
+        os.makedirs(url_result + url_test + "comparable_testes/")
+        os.makedirs(url_result + url_test + "HOG_testes/")
+        os.makedirs(url_result + url_learning)
+        os.makedirs(url_result + url_learning + "comparable_treinamento/")
+        os.makedirs(url_result + url_learning + "HOG_treinamento/")
 
     EXECUTED = False
 
@@ -121,11 +118,11 @@ if __name__ == '__main__':
 
     if RUN:
         if RUN == "TESTES":
-            path = url_dataset + url_test
+            path = url_test
             timestamp_start, timestamp_finish = loop("TESTES", path, CREATE_IMAGE)
             EXECUTED = True
         elif RUN == "TREINAMENTO":
-            path = url_dataset + url_learning
+            path = url_learning
             timestamp_start, timestamp_finish = loop("TREINAMENTO", path, CREATE_IMAGE)
             EXECUTED = True
 
